@@ -24,4 +24,8 @@ OR
 
 By the way the command for installing packages using a requirements text file is:
 
+`pip3 install -r requirements.txt`
+
+For our case this would be:
+
 `pip3 install -r python_requirements.txt`
