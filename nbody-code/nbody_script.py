@@ -4,7 +4,6 @@ import os, argparse, gc
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
-from IPython.display import display, clear_output
 from tqdm import tqdm, tqdm_notebook
 
 """
@@ -116,6 +115,9 @@ def main():
     config = parse_args()
     ipynb = config["ipynb"]
 
+    if ipynb: 
+        from IPython.display import display, clear_output
+    
     sample_dir = "./data"
     if not os.path.isdir(sample_dir):
         os.makedirs(sample_dir)
