@@ -2,13 +2,26 @@
 
 ## Change the permissions
 
-Write the following in your console:
-
-`chmod +x nbody_script.py`
+`chmod +x ./%FILE_PATH%/nbody_script.py`
 
 ## Then run the script:
-`./nbody_script.py` if you are running it on a PC
 
-or
+### In console (not a Jupyter Notebook or Colab)
 
-`./nbody_script.py [-ip or --ipynb]` if you are running it in a Jupyter Notebook or in Colab
+`./%FILE_PATH%/nbody_script.py`
+
+### In a Jupyter Notebook or Colab Notebook
+
+`./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` using the shell magic `%%sh` or `!` in a cell.
+
+OR
+
+`%run ./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` in a cell.
+
+---
+
+`python_requirements.txt` contains the names of the required packages. The name of the package `ipython` can be removed from `python_requirements.txt` before installing if you won't use the script in a Notebook environment.
+
+By the way the command for installing packages using a requirements text file is:
+
+`pip3 install -r python_requirements.txt`
