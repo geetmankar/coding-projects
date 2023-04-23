@@ -1,10 +1,8 @@
 ### In a Jupyter Notebook or Colab Notebook
 
-`./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` using the shell magic `%%sh` or `!` in a cell.
-
-OR
-
-`%run ./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` in a cell.
+`./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` 
+OR 
+`%run ./%FILE_PATH%/nbody_script.py [-ip or --ipynb]`
 
 otherwise run without any options/args.
 
