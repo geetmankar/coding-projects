@@ -6,6 +6,4 @@ OR
 
 otherwise run without any options/args.
 
----
-
 `python_requirements.txt` contains the names of the required packages. The name of the package `ipython` can be removed from the text before installing if you won't use the script in a Notebook environment.
