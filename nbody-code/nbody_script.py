@@ -3,8 +3,8 @@
 import os, argparse, gc
 import numpy as np
 import matplotlib.pyplot as plt
-import cv2
-from tqdm import tqdm, tqdm_notebook
+from tqdm import tqdm, notebook
+
 
 """
 Simple N-body simulation in Python
@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument(
         "-ip", "--ipynb",
         action="store_true",
-        help="If running script in IPython"
+        help="If running script in IPython Notebook"
     )
 
     config = vars(parser.parse_args())
@@ -109,6 +109,59 @@ def get_E(pos, vel, mass, G):
 
 ###########--------------------------------------------------------
 
+def live_plot_nbody(**kwargs):
+    
+    if kwargs["save_images"] and not os.path.isdir(kwargs["sample_dir"]):
+        os.makedirs(kwargs["sample_dir"])
+
+    xx, yy, pos = kwargs["xx"], kwargs["yy"], kwargs["pos"]
+    t_end, t_all= kwargs["t_end"], kwargs["t_all"]
+    KE_save, PE_save = kwargs["KE_save"], kwargs["PE_save"]
+
+    # fig  = plt.figure(figsize=(4,5), dpi=100)
+    # grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7)
+    # ax1  = plt.subplot(grid[0:2, 0])
+    # ax2  = plt.subplot(grid[  2, 0])
+
+    fig, grid, ax1, ax2 = kwargs["fig_attrs"]
+
+    
+    ax1.set(
+        xlabel="$x$", ylabel="$y$", xlim=(-2, 2), ylim=(-2, 2),
+        xticks = [-2,-1,0,1,2], yticks = [-2,-1,0,1,2],
+    )
+    ax1.set_aspect('equal', 'box')
+    ax1.scatter(xx, yy, s=1, color=[.7, .7, 1]) # trails
+    ax1.scatter(pos[:,0], pos[:,1],s=5, color='blue') # current pos
+
+    ax2.set(xlabel='Time', ylabel='Energy', xlim=(0, t_end), ylim=(-300, 300))
+    ax2.set_aspect(0.007)
+    ax2.scatter(t_all, KE_save        , color='red'  ,s=0.5, label='KE'   )
+    ax2.scatter(t_all, PE_save        , color='aqua' ,s=0.5, label='PE'   )
+    ax2.scatter(t_all, KE_save+PE_save, color='black',s=0.5, label='E_tot')
+    ax2.legend(loc='upper right', ncol=3, frameon=False, fontsize=7)
+
+    plt.sca(plt.gca())
+    if kwargs["save_images"]:
+        plt.savefig(kwargs["sample_dir"] + f'/nbody_{i:04d}.png',
+                    dpi=240, bbox_inches='tight')
+    
+
+    if kwargs["ipynb"]:
+        # ax1.clear(); ax2.clear()
+        fig.canvas.draw()
+        fig.show()
+        import IPython.display as display
+        display.display(fig)
+        display.clear_output(wait=True)
+
+    plt.pause(0.001)
+
+    if not kwargs["ipynb"]:
+        ax1.clear(); ax2.clear()
+    
+###########--------------------------------------------------------
+
 def main():
 
     """ Run the N-body simulation """
@@ -116,7 +169,7 @@ def main():
     ipynb = config["ipynb"]
 
     if ipynb: 
-        from IPython.display import display, clear_output
+        import IPython.display as display
     
     sample_dir = "./data"
     if not os.path.isdir(sample_dir):
@@ -130,6 +183,7 @@ def main():
     soft          = 0.1    # softening length
     G             = 1.     # Newton's gravitational constant
     plotRealTime  = True   # Plot at each timestep
+    save_images   = False
 
     print(f"Simulation inititated for {N} particles") ###################
     # Initial condition
@@ -160,26 +214,30 @@ def main():
     PE_save[0]         = PE
     t_all              = np.arange(Nt+1) * dt
 
-    # prep to plot figure
-    fig  = plt.figure(figsize=(4,5), dpi=100)
-    grid = plt.GridSpec(3, 1, wspace=0, hspace=0.3)
-    ax1  = plt.subplot(grid[0:2, 0])
-    ax2  = plt.subplot(grid[  2, 0])
 
     print("Starting simulation loop and plotting") ###################
     # Simulation Loop
     if ipynb:
-        rangetqdm = tqdm_notebook(iterable=range(Nt), leave=True)
+        rangetqdm = notebook.tqdm(iterable=range(Nt), leave=True)
     else:
         rangetqdm = tqdm(range(Nt))
+
+    # calculation and plotting loop
+    fig  = plt.figure(figsize=(4,5), dpi=100)
+    grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7)
+    ax1  = plt.subplot(grid[0:2, 0])
+    ax2  = plt.subplot(grid[  2, 0])
+    
+    # if ipynb: plt.ion(); fig.show(); fig.canvas.draw()
+
     for i in rangetqdm:
         
         vel += acc * dt/2.  # half kick
         pos += vel * dt     # positional drift
         # update accelerations for the particles
-        acc = get_accel(pos, mass, G, soft) 
+        acc  = get_accel(pos, mass, G, soft) 
         vel += acc * dt/2.  # half kick
-        t += dt             # update time
+        t   += dt             # update time
         KE, PE = get_E(pos, vel, mass, G) # get energy of the system
 
         # save energies and positions again
@@ -189,59 +247,41 @@ def main():
 
         # Real Time Plotting Loop
         if plotRealTime or (i == Nt-1):
-            plt.sca(ax1)
-            plt.cla()
+            
             xx = pos_arr[:, 0, np.max(i-50, 0):(i+1)]
             yy = pos_arr[:, 1, np.max(i-50, 0):(i+1)]
-            plt.scatter(xx, yy, s=1, color=[.7, .7, 1])
-            plt.scatter(pos[:,0],pos[:,1],s=10,color='blue')
-            ax1.set(xlim=(-2, 2), ylim=(-2, 2))
-            ax1.set_aspect('equal', 'box')
-            ax1.set_xticks([-2,-1,0,1,2])
-            ax1.set_yticks([-2,-1,0,1,2])
+            
+            if ipynb: display.display(rangetqdm.container)
 
-            plt.sca(ax2)
-            plt.xlabel('Time')
-            plt.ylabel('Energy')
-            plt.cla()
-            plt.scatter(t_all, KE_save        , color='red'  , s=1, label='KE'   )
-            plt.scatter(t_all, PE_save        , color='blue' , s=1, label='PE'   )
-            plt.scatter(t_all, KE_save+PE_save, color='black', s=1, label='E_tot')
-            ax2.set(xlim=(0, t_end), ylim=(-300, 300))
-            ax2.set_aspect(0.007)
-            ax2.legend(loc='upper right', ncol=3)
-            plt.savefig(sample_dir + f'/nbody_{i:04d}.png', dpi=240,
-                        bbox_inches='tight')
+            live_plot_nbody(
+                xx=xx, yy=yy, pos=pos,
+                t_end=t_end, t_all=t_all,
+                KE_save=KE_save, PE_save=PE_save,
+                fig_attrs = (fig, grid, ax1, ax2),
+                save_images=save_images, sample_dir=sample_dir,
+                ipynb=ipynb,
+                )
             
-            # check if running in IPython Notebooks
-            if ipynb:
-                clear_output(wait=True)
-                display(rangetqdm.container)
-                display(fig)
-            else:
-                plt.show()
-            
-            plt.pause(1e-3)
 
     print(f"Simulation Finished for {N} particles") ###################
     
     # Save figure
-    print("Creating the video")
-    
-    vid_fname = 'Nbody_plots.avi'
+    if save_images:
+        import cv2
+        print("Creating the video")
+        
+        vid_fname = 'Nbody_plots.avi'
 
-    files = [os.path.join(sample_dir, f) for f in os.listdir(sample_dir) if 'nbody' in f]
-    files.sort()
+        files = [os.path.join(sample_dir, f) for f in os.listdir(sample_dir) if 'nbody' in f]
+        files.sort()
 
-    img1 = cv2.imread(sample_dir + "/nbody_0000.png")
-    img1sh = img1.shape[:2][::-1]
+        img1 = cv2.imread(sample_dir + "/nbody_0000.png")
+        img1sh = img1.shape[:2][::-1]
 
-    out = cv2.VideoWriter(vid_fname, cv2.VideoWriter_fourcc(*'MP4V'), 60, img1sh)
-    [out.write(cv2.imread(fname)) for fname in files]
-    out.release()
+        out = cv2.VideoWriter(vid_fname, cv2.VideoWriter_fourcc(*'MP4V'), 60, img1sh)
+        [out.write(cv2.imread(fname)) for fname in files]
+        out.release()
 
-
-    return 0
 
 
 ###########--------------------------------------------------------
