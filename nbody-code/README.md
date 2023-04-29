@@ -1,9 +1,3 @@
-### In a Jupyter Notebook or Colab Notebook
+## Python N-Body Simulation
 
-`./%FILE_PATH%/nbody_script.py [-ip or --ipynb]` 
-OR 
-`%run ./%FILE_PATH%/nbody_script.py [-ip or --ipynb]`
-
-otherwise run without any options/args.
-
-`python_requirements.txt` contains the names of the required packages. The name of the package `ipython` can be removed from the text before installing if you won't use the script in a Notebook environment.
+Run the script to see a live plot of an N-Body simulation. Add the `-sv` or `--save_video` option with the script to write a video file using the `cv2` package. Do NOT use the `-ip` or `--ipynb` option as it is still not fixed, hence the script does not show live plots in notebooks properly. Use Python $\geq$ 3.9 to avoid unexpected errors.

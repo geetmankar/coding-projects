@@ -1,5 +1,0 @@
-numpy
-matplotlib
-cv2
-tqdm
-ipython

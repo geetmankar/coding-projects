@@ -21,6 +21,12 @@ def parse_args():
         help="If running script in IPython Notebook"
     )
 
+    parser.add_argument(
+        "-sv", "--save-video",
+        action="store_true",
+        help="If running script in IPython Notebook"
+    )
+
     config = vars(parser.parse_args())
 
     return config
@@ -111,7 +117,7 @@ def get_E(pos, vel, mass, G):
 
 def live_plot_nbody(**kwargs):
     
-    if kwargs["save_images"] and not os.path.isdir(kwargs["sample_dir"]):
+    if kwargs["save_video"] and not os.path.isdir(kwargs["sample_dir"]):
         os.makedirs(kwargs["sample_dir"])
 
     xx, yy, pos = kwargs["xx"], kwargs["yy"], kwargs["pos"]
@@ -142,7 +148,7 @@ def live_plot_nbody(**kwargs):
     ax2.legend(loc='upper right', ncol=3, frameon=False, fontsize=7)
 
     plt.sca(plt.gca())
-    if kwargs["save_images"]:
+    if kwargs["save_video"]:
         plt.savefig(kwargs["sample_dir"] + f'/nbody_{i:04d}.png',
                     dpi=240, bbox_inches='tight')
     
@@ -167,6 +173,7 @@ def main():
     """ Run the N-body simulation """
     config = parse_args()
     ipynb = config["ipynb"]
+    save_video = config["save_video"]
 
     if ipynb: 
         import IPython.display as display
@@ -183,7 +190,6 @@ def main():
     soft          = 0.1    # softening length
     G             = 1.     # Newton's gravitational constant
     plotRealTime  = True   # Plot at each timestep
-    save_images   = False
 
     print(f"Simulation inititated for {N} particles") ###################
     # Initial condition
@@ -258,7 +264,7 @@ def main():
                 t_end=t_end, t_all=t_all,
                 KE_save=KE_save, PE_save=PE_save,
                 fig_attrs = (fig, grid, ax1, ax2),
-                save_images=save_images, sample_dir=sample_dir,
+                save_video=save_video, sample_dir=sample_dir,
                 ipynb=ipynb,
                 )
             
@@ -266,7 +272,7 @@ def main():
     print(f"Simulation Finished for {N} particles") ###################
     
     # Save figure
-    if save_images:
+    if save_video:
         import cv2
         print("Creating the video")
         
