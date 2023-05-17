@@ -1,9 +1,14 @@
 # Python N-Body Simulation
 
+Use Python $\geq$ 3.9 to avoid unexpected errors.
+
 ## CPU version
 
-Run the script to see a live plot of an N-Body simulation. Add the `-sv` or `--save-video` option with the script to write a video file using the `cv2` package. Do NOT use the `-ip` or `--ipynb` option as it is still not fixed, hence the script does not show live plots in notebooks properly. Use Python $\geq$ 3.9 to avoid unexpected errors.
+Uses NumPy
+Run the script to get an N-Body simulation. The script can easily be edited to return a file with the positions of each particle at every time step (by default it does not). The `-sv` or `--save-video` flag will save the results to a 60FPS video.
 
 ## GPU version
 
-The GPU version does not require the `cv2` package for writing the video. You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force the use of the CPU instead. `-sv` or `--save-video` flag will save the results to a 60FPS video.
+Uses PyTorch
+
+You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force the use of the CPU instead. The `-sv` or `--save-video` flag will save the results to a 60FPS video.
