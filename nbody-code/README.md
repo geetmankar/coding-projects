@@ -13,3 +13,6 @@ Run the script to get an N-Body simulation. The script can easily be edited to r
 Uses PyTorch (`torch`)
 
 You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force the use of the CPU instead. The `-sv` or `--save-video` flag will save the results to a 60FPS video.
+
+https://github.com/geetmankar/coding-projects/assets/27027921/12e08b6d-d071-4ac8-b531-87e35efb5f59
+
