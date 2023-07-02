@@ -3,7 +3,7 @@
 import os, argparse, gc
 import matplotlib.pyplot as plt
 from matplotlib import animation
-from tqdm import tqdm
+from tqdm.auto import tqdm
 from typing import Optional, Tuple
 from numpy.typing import ArrayLike
 import numpy as np
