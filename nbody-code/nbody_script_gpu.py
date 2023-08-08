@@ -159,7 +159,9 @@ def live_plot_nbody(
 
     ax2.set(
         xlabel="Time", ylabel="Energy",
-        xlim=(0, t_end), ylim=(min(KE_save.min(), PE_save.min()), max(KE_save.max(), PE_save.max())),
+        xlim=(0, t_end), ylim=(min(KE_save.min(), PE_save.min()),
+                               max(KE_save.max(), PE_save.max())),
+        aspect='equal',
     )
 
     lines  = ax1.plot([], [], "o", markersize=5, zorder=3)
@@ -292,7 +294,7 @@ def main():
     pos, KE_save, PE_save, t_all = run_simulation(nbody, t_end, dt, device)
 
 
-    fig  = plt.figure(figsize=(4,5), dpi=100)
+    fig  = plt.figure(figsize=(4,6), dpi=100)
     grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7)
     ax1  = plt.subplot(grid[0:2, 0])
     ax2  = plt.subplot(grid[  2, 0])

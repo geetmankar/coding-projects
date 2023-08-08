@@ -70,7 +70,6 @@ def get_accel(pos:ArrayLike, mass:ArrayLike, G:float, soft:float):
 
     # stack the accelerations
     accel = np.hstack( (ax, ay, az) )
-
     return accel
 
 ###########--------------------------------------------------------
@@ -143,16 +142,18 @@ def live_plot_nbody(
     if save_video and sample_dir is not None and not os.path.isdir(sample_dir):
         os.makedirs(sample_dir)
 
-    fig, grid, ax1, ax2 = fig_attrs
+    fig, _grid, ax1, ax2 = fig_attrs
 
     ax1.set(
         xlabel="$x$", ylabel="$y$", xlim=(-2, 2), ylim=(-2, 2),
         xticks=[-2, -1, 0, 1, 2], yticks=[-2, -1, 0, 1, 2],
+        aspect='equal',
     )
 
     ax2.set(
         xlabel="Time", ylabel="Energy",
-        xlim=(0, t_end), ylim=(min(KE_save.min(), PE_save.min()), max(KE_save.max(), PE_save.max())),
+        xlim=(0, t_end), ylim=(min(KE_save.min(), PE_save.min()),
+                               max(KE_save.max(), PE_save.max())),
     )
 
     lines  = ax1.plot([], [], "o", markersize=5, zorder=3)
@@ -172,8 +173,10 @@ def live_plot_nbody(
     def animate(i):
         pos = particle_positions[:,:,i]
         lines[0].set_data(pos[:, 0], pos[:, 1])
-        xx = particle_positions[:, 0, np.max(i-50, 0):(i+1)]
-        yy = particle_positions[:, 1, np.max(i-50, 0):(i+1)]
+        trails = np.array([i-50, i-40, i-30,i-20, i-10, 0])
+        trail_len = np.max(trails[np.where(trails >= 0)])
+        xx = particle_positions[:, 0, trail_len:(i+1)]
+        yy = particle_positions[:, 1, trail_len:(i+1)]
         lines2[0].set_data(xx, yy)
         line_ke.set_data(t_all[:i], KE_save[:i])
         line_pe.set_data(t_all[:i], PE_save[:i])
@@ -272,7 +275,7 @@ def main():
     soft          = 0.1    # softening length
     G             = 1.     # Newton's gravitational constant
 
-    rng = np.random.default_rng(seed=100)
+    rng = np.random.default_rng(seed=42)
     mass = 20. * np.ones((N, 1))/N   # total mass of the N particles
     pos  = rng.standard_normal((N, 3))     # random positions
     vel  = rng.standard_normal((N, 3))
@@ -282,7 +285,7 @@ def main():
     pos, KE_save, PE_save, t_all = run_simulation(nbody, t_end, dt)
 
 
-    fig  = plt.figure(figsize=(4,5), dpi=100)
+    fig  = plt.figure(figsize=(4,6), dpi=100)
     grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7)
     ax1  = plt.subplot(grid[0:2, 0])
     ax2  = plt.subplot(grid[  2, 0])
@@ -305,4 +308,3 @@ def main():
 if __name__=="__main__":
     main()
     gc.collect()
-    
