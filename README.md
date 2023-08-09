@@ -1,4 +1,4 @@
-# coding-projects
+# My Coding Projects [Physics or otherwise]
 
 
 ## List of projects:
