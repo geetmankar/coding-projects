@@ -16,6 +16,7 @@ Uses PyTorch (`torch`) for the calculations
 You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force the use of the CPU instead. Flags are same as the CPU version.
 
 The resulting video will look like:
+
 https://github.com/geetmankar/coding-projects/assets/27027921/2df3b741-c699-42f6-8ff3-a1e95dc4e4b1
 
 ---
