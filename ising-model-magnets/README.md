@@ -1,5 +1,7 @@
 # Ising Model for Ferromagnets
 
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+
 The code shows the theory and implementation of the Ising Model for Ferromagnets. The general steps are:
 
 1. Create a random initial grid, with each value in the grid depicting either $+1$ spin or a $-1$ spin.
