@@ -1,38 +1,44 @@
 #!/usr/bin/env python3
 
-import os, argparse, gc
+import os
+import argparse
+import gc
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from tqdm.auto import tqdm
 from typing import Optional, Tuple
-from numpy.typing import ArrayLike
+from numpy.typing import NDArray
 import numpy as np
 from dataclasses import dataclass
-###=============================================================
+
+# =============================================================
 
 
 """
 Simple N-body simulation in Python
 Based on Newton's Law of Gravity
 """
+
+
 def parse_args():
-    #script arguments
+    # script arguments
     parser = argparse.ArgumentParser(description="N-body Script",
-                    formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+                                     formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument(
         "-sv", "--save-video",
         action="store_true",
         help="To save a video of the simulation running"
     )
-    
+
     config = vars(parser.parse_args())
 
     return config
 
-###-----------------------------------------------------------
 
-def get_accel(pos:ArrayLike, mass:ArrayLike, G:float, soft:float):
+# -----------------------------------------------------------
+
+def get_accel(pos: NDArray, mass: NDArray, G: float, soft: float):
     """
     Calculating the acceleration on each particle
     ---------------------------
@@ -57,24 +63,24 @@ def get_accel(pos:ArrayLike, mass:ArrayLike, G:float, soft:float):
     # pairwise particle separations: r_j - r_i
     dx, dy, dz = (x.T - x), (y.T - y), (z.T - z)
 
+    print(dx.shape)
     # r^-3 for the pairwise particle separations
-    inv_r3 = (dx**2 + dy**2 + dz**2 + soft**2)
-    inv_r3[ inv_r3 > 0 ] = inv_r3[ inv_r3 > 0 ]**(-1.5)
-
+    inv_r3 = (dx ** 2 + dy ** 2 + dz ** 2 + soft ** 2)
+    inv_r3[inv_r3 > 0] = inv_r3[inv_r3 > 0] ** (-1.5)
     # accelerations of the N particles
     ax = G * (dx * inv_r3) @ mass
     ay = G * (dy * inv_r3) @ mass
     az = G * (dz * inv_r3) @ mass
-    
     # @ represents matrix multiplication
 
     # stack the accelerations
-    accel = np.hstack( (ax, ay, az) )
+    accel = np.hstack((ax, ay, az))
     return accel
 
-###########--------------------------------------------------------
 
-def get_E(pos:ArrayLike, vel:ArrayLike, mass:ArrayLike, G:float):
+# --------------------------------------------------------
+
+def get_E(pos: NDArray, vel: NDArray, mass: NDArray, G: float):
     """
     Get K.E. and P.E. of the simulation
     ---------------------------
@@ -92,7 +98,7 @@ def get_E(pos:ArrayLike, vel:ArrayLike, mass:ArrayLike, G:float):
     """
 
     # Kinetic Energy of the system
-    KE = 0.5 * np.sum(np.sum( mass * vel**2 ))
+    KE = 0.5 * np.sum(np.sum(mass * vel ** 2))
 
     # Potential Energy of the system
     # positions of all the particles
@@ -102,43 +108,44 @@ def get_E(pos:ArrayLike, vel:ArrayLike, mass:ArrayLike, G:float):
     dx, dy, dz = (x.T - x), (y.T - y), (z.T - z)
 
     # r^-1 for all pairwise particle separations
-    inv_r = np.sqrt(dx**2 + dy**2 + dz**2)
+    inv_r = np.sqrt(dx ** 2 + dy ** 2 + dz ** 2)
     inv_r[inv_r > 0] = 1 / inv_r[inv_r > 0]
 
     # we sum only over the upper triangle of the matrix
     # to count each pairwise interaction only once
     PE = G * np.sum(
-                    np.sum(
-                           np.triu( -(mass * mass.T) * inv_r, 1 )
-                            )
-                    )
-    
+        np.sum(
+            np.triu(-(mass * mass.T) * inv_r, 1)
+        )
+    )
+
     return KE, PE
 
-###########--------------------------------------------------------
+
+# --------------------------------------------------------
 
 @dataclass
 class NBody:
-    N   : int
-    G   : float
+    N: int
+    G: float
     soft: float
-    mass: ArrayLike
-    pos : ArrayLike
-    vel : ArrayLike
+    mass: NDArray
+    pos: NDArray
+    vel: NDArray
 
-###########--------------------------------------------------------
+
+# --------------------------------------------------------
 
 def live_plot_nbody(
-    particle_positions: ArrayLike,
-    t_end: float,
-    t_all: ArrayLike,
-    KE_save: ArrayLike,
-    PE_save: ArrayLike,
-    fig_attrs: Tuple[plt.Figure, plt.GridSpec, plt.Axes, plt.Axes],
-    sample_dir: Optional[str] = None,
-    save_video: bool = False,
+        particle_positions: NDArray,
+        t_end: float,
+        t_all: NDArray,
+        KE_save: NDArray,
+        PE_save: NDArray,
+        fig_attrs: Tuple[plt.Figure, plt.GridSpec, plt.Axes, plt.Axes],
+        sample_dir: Optional[str] = None,
+        save_video: bool = False,
 ) -> None:
-    
     if save_video and sample_dir is not None and not os.path.isdir(sample_dir):
         os.makedirs(sample_dir)
 
@@ -156,13 +163,14 @@ def live_plot_nbody(
                                max(KE_save.max(), PE_save.max())),
     )
 
-    lines  = ax1.plot([], [], "o", markersize=5, zorder=3)
+    lines = ax1.plot([], [], "o", markersize=5, zorder=3)
     lines2 = ax1.plot([], [], "o", markersize=1, alpha=0.5)
     line_ke, = ax2.plot([], [], label="K.E.")
     line_pe, = ax2.plot([], [], label="P.E.")
     ax2.legend(fontsize=6, framealpha=0.5)
 
     t_all = np.array(t_all)
+
     def init():
         lines[0].set_data([], [])
         lines2[0].set_data([], [])
@@ -171,12 +179,12 @@ def live_plot_nbody(
         return lines + [line_ke, line_pe]
 
     def animate(i):
-        pos = particle_positions[:,:,i]
+        pos = particle_positions[:, :, i]
         lines[0].set_data(pos[:, 0], pos[:, 1])
-        trails = np.array([i-50, i-40, i-30,i-20, i-10, 0])
+        trails = np.array([i - 50, i - 40, i - 30, i - 20, i - 10, 0])
         trail_len = np.max(trails[np.where(trails >= 0)])
-        xx = particle_positions[:, 0, trail_len:(i+1)]
-        yy = particle_positions[:, 1, trail_len:(i+1)]
+        xx = particle_positions[:, 0, trail_len:(i + 1)]
+        yy = particle_positions[:, 1, trail_len:(i + 1)]
         lines2[0].set_data(xx, yy)
         line_ke.set_data(t_all[:i], KE_save[:i])
         line_pe.set_data(t_all[:i], PE_save[:i])
@@ -192,10 +200,9 @@ def live_plot_nbody(
     plt.show()
 
 
+# --------------------------------------------------------
 
-###########--------------------------------------------------------
-
-def run_simulation(nbody:NBody, t_end:float, dt:float) -> None:
+def run_simulation(nbody: NBody, t_end: float, dt: float):
     """
     Runs the simulation for a specified duration.
     ---------------------------
@@ -211,18 +218,18 @@ def run_simulation(nbody:NBody, t_end:float, dt:float) -> None:
     """
 
     # set up arrays to store data
-    N_iter = int(np.ceil( t_end/dt ))
+    N_iter = int(np.ceil(t_end / dt))
     pos_save = np.zeros((nbody.N, 3, N_iter + 1))
-    KE_save  = np.zeros(N_iter + 1)
-    PE_save  = np.zeros(N_iter + 1)
-    time     = np.zeros(N_iter + 1)
+    KE_save = np.zeros(N_iter + 1)
+    PE_save = np.zeros(N_iter + 1)
+    time = np.zeros(N_iter + 1)
 
     # get initial acceleration and energies
     accel = get_accel(nbody.pos, nbody.mass, nbody.G, nbody.soft)
     KE, PE = get_E(nbody.pos, nbody.vel, nbody.mass, nbody.G)
 
     # save initial conditions
-    pos_save[:,:,0] = nbody.pos
+    pos_save[:, :, 0] = nbody.pos
     # vel_save[:,:,0] = nbody.vel
     KE_save[0] = KE
     PE_save[0] = PE
@@ -231,11 +238,10 @@ def run_simulation(nbody:NBody, t_end:float, dt:float) -> None:
     t = 0.0
     i = 0
 
-    with tqdm(total = N_iter) as pbar:
-
+    with tqdm(total=N_iter) as pbar:
         while i < N_iter:
             # update positions
-            nbody.pos = nbody.pos + (nbody.vel * dt) + (0.5 * accel * dt**2)
+            nbody.pos = nbody.pos + (nbody.vel * dt) + (0.5 * accel * dt ** 2)
 
             # find new acceleration
             accel_new = get_accel(nbody.pos, nbody.mass, nbody.G, nbody.soft)
@@ -243,12 +249,12 @@ def run_simulation(nbody:NBody, t_end:float, dt:float) -> None:
             # update velocities
             nbody.vel = nbody.vel + 0.5 * (accel + accel_new) * dt
 
-            pos_save[:,:,i+1] = nbody.pos
+            pos_save[:, :, i + 1] = nbody.pos
             # vel_save[:,:,i+1] = nbody.vel
             KE, PE = get_E(nbody.pos, nbody.vel, nbody.mass, nbody.G)
-            KE_save[i+1]  = KE
-            PE_save[i+1]  = PE
-            time[i+1]     = t
+            KE_save[i + 1] = KE
+            PE_save[i + 1] = PE
+            time[i + 1] = t
 
             # update acceleration
             accel = accel_new
@@ -263,48 +269,49 @@ def run_simulation(nbody:NBody, t_end:float, dt:float) -> None:
     # return saved data
     return pos_save, KE_save, PE_save, time
 
-###########--------------------------------------------------------
+
+# --------------------------------------------------------
 
 def main():
     config = parse_args()
     save_video = config["save_video"]
 
-    N             = 100    # Number of particles
-    t_end         = 10.    # Time at which the sim ends
-    dt            = 0.01   # Timestep
-    soft          = 0.1    # softening length
-    G             = 1.     # Newton's gravitational constant
+    N = 100  # Number of particles
+    t_end = 10.  # Time at which the sim ends
+    dt = 0.01  # Timestep
+    soft = 0.1  # softening length
+    G = 1.  # Newton's gravitational constant
 
     rng = np.random.default_rng(seed=42)
-    mass = 20. * np.ones((N, 1))/N   # total mass of the N particles
-    pos  = rng.standard_normal((N, 3))     # random positions
-    vel  = rng.standard_normal((N, 3))
+    mass = 20. * np.ones((N, 1)) / N  # total mass of the N particles
+    pos = rng.standard_normal((N, 3))  # random positions
+    vel = rng.standard_normal((N, 3))
 
     nbody = NBody(N, G, soft, mass, pos, vel)
 
     pos, KE_save, PE_save, t_all = run_simulation(nbody, t_end, dt)
 
-
-    fig  = plt.figure(figsize=(4,6), dpi=100)
+    fig = plt.figure(figsize=(4, 6), dpi=100)
     grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7)
-    ax1  = plt.subplot(grid[0:2, 0])
-    ax2  = plt.subplot(grid[  2, 0])
+    ax1 = plt.subplot(grid[0:2, 0])
+    ax2 = plt.subplot(grid[2, 0])
 
     fig_attrs = (fig, grid, ax1, ax2)
 
     live_plot_nbody(
-    particle_positions=pos,
-    t_end=t_end,
-    t_all=t_all,
-    KE_save=KE_save,
-    PE_save=PE_save,
-    fig_attrs=fig_attrs,
-    sample_dir='./data',
-    save_video=save_video,
+        particle_positions=pos,
+        t_end=t_end,
+        t_all=t_all,
+        KE_save=KE_save,
+        PE_save=PE_save,
+        fig_attrs=fig_attrs,
+        sample_dir='./data',
+        save_video=save_video,
     )
 
-###########--------------------------------------------------------
 
-if __name__=="__main__":
+# --------------------------------------------------------
+
+if __name__ == "__main__":
     main()
     gc.collect()

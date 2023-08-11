@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
-import os, argparse, gc
-import torch
-import matplotlib.pyplot as plt
-from matplotlib import animation
-from tqdm.auto import tqdm
-from typing import Optional, Tuple
-from numpy.typing import ArrayLike
-import numpy as np
+import argparse
+import gc
+import os
 from dataclasses import dataclass
+from typing import Optional
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from matplotlib import animation
+from numpy.typing import ArrayLike
+from tqdm.auto import tqdm
+
 ###=============================================================
 
 
@@ -142,7 +146,7 @@ def live_plot_nbody(
     t_all: ArrayLike,
     KE_save: ArrayLike,
     PE_save: ArrayLike,
-    fig_attrs: Tuple[plt.Figure, plt.GridSpec, plt.Axes, plt.Axes],
+    fig_attrs: tuple[plt.Figure, plt.GridSpec, plt.Axes, plt.Axes],
     sample_dir: Optional[str] = None,
     save_video: bool = False,
 ) -> None:
@@ -193,7 +197,7 @@ def live_plot_nbody(
                                    blit=True)
 
     if save_video:
-        anim.save(f"{sample_dir}/nbody.mp4", writer="ffmpeg", fps=60)
+        anim.save(f"{sample_dir}/nbody_gpu.mp4", writer="ffmpeg", fps=60)
 
     plt.show()
 
@@ -268,7 +272,8 @@ def run_simulation(nbody:NBody, t_end:float, dt:float, device:torch.device) -> N
             pbar.update(1)
 
     # return saved data
-    return pos_save.cpu().numpy(), KE_save.cpu().numpy(), PE_save.cpu().numpy(), time.cpu().numpy()
+    return (pos_save.cpu().numpy(), KE_save.cpu().numpy(),
+            PE_save.cpu().numpy(), time.cpu().numpy())
 
 ###########--------------------------------------------------------
 
