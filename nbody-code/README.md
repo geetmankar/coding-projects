@@ -19,7 +19,7 @@ You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force t
 
 ### Version 2 (`*v2.py`)
 
-Same as the above codes but with $1000$ particles. This more clearly shows the performance difference between the CPU and GPU versions of the code.
+Same as the above codes but with $1000$ particles. This more clearly shows the performance difference between the CPU and GPU versions of the code. This version also takes greater advantage of the DataClass `NBodySystem` to keep track of the whole system.
 
 The resulting video will look like:
 
