@@ -17,7 +17,7 @@ Uses PyTorch (`torch`) for the calculations
 
 You can give the argument `-cpu` to the GPU script `nbody_script_gpu` to force the use of the CPU instead. Flags are same as the CPU version.
 
-### Version 2 (`*.v2.py`)
+### Version 2 (`*v2.py`)
 
 Same as the above codes but with $1000$ particles. This more clearly shows the performance difference between the CPU and GPU versions of the code.
 
