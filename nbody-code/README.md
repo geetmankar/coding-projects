@@ -4,7 +4,7 @@
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 
 ## Rust [UNDER CONSTRUCTION]
-Instructions for the rust version will be added once it is complete.
+All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder. Instructions for the rust version will be added once it is complete.
 
 
 ## Python
