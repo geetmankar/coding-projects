@@ -1,6 +1,11 @@
 # Gravitational N-Body Simulation
 ![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
 ![Julia](https://img.shields.io/badge/-Julia-9558B2?style=for-the-badge&logo=julia&logoColor=white)
+![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
+
+## Rust [UNDER CONSTRUCTION]
+Instructions for the rust version will be added once it is complete.
+
 
 ## Python
 Use Python $\geq$ 3.9 to avoid unexpected errors. Run `pip install -r requirements.txt` in your terminal to install the packages needed to run BOTH scripts.
