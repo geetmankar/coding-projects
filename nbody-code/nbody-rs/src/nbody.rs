@@ -213,8 +213,6 @@ pub fn run_sim(
 
     for i in tqdm!(0..n_iter) {
         // update positions
-        assert_eq!(nbsys.pos.clone().shape(), nbsys.vel.clone().shape());
-        assert_eq!(nbsys.pos.clone().shape(), nbsys.accel.clone().shape());
         nbsys.pos = nbsys.pos.clone()
             + ((nbsys.vel.clone() * dt) + (0.5 * nbsys.accel.clone() * dt.powi(2))).view();
         // find new acceleration
