@@ -36,7 +36,9 @@ macro_rules! tdiff {
     // transpose difference
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
-        let fi = $x.t().broadcast(shape).unwrap().to_owned() - $x.broadcast(shape).unwrap();
+        let defarr = Array::default(shape);
+        let fi = $x.t().broadcast(shape).unwrap_or(defarr.view()).to_owned()
+            - $x.broadcast(shape).unwrap_or(defarr.view());
         fi
     }};
 }
@@ -55,7 +57,9 @@ Returns:
 macro_rules! sqmatrixify_sq {
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
-        let fi = $x.t().broadcast(shape).unwrap().to_owned() * $x.broadcast(shape).unwrap();
+        let defarr = Array::default(shape);
+        let fi = $x.t().broadcast(shape).unwrap_or(defarr.view()).to_owned()
+            * $x.broadcast(shape).unwrap_or(defarr.view());
         fi
     }};
 }
@@ -71,8 +75,8 @@ accel: Array2<f64>, acceleration of each particle
 pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>, ShapeError> {
     let pos = nbsys.pos.clone();
     let mass = nbsys.mass.clone();
-    let g = nbsys.g.clone();
-    let soft: f64 = nbsys.soft.clone();
+    let g = nbsys.g;
+    let soft: f64 = nbsys.soft;
 
     // let shape = (pos.view().nrows(), pos.view().nrows());
     // let mut r3 = Array2::<f64>::zeros(shape.f());
@@ -105,7 +109,7 @@ Arguments: NBodySystem
 Returns:
 KE: Kinetic Energy of the System
 PE: Potential Energy of the System"]
-pub fn get_energy<'a>(nbsys: &'a NBodySystem) -> (f64, f64) {
+pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
     let (mass, vel) = (nbsys.mass.clone(), nbsys.vel.clone());
     let shape = (vel.view().nrows(), vel.view().ncols());
 
@@ -113,14 +117,14 @@ pub fn get_energy<'a>(nbsys: &'a NBodySystem) -> (f64, f64) {
         * (mass
             .insert_axis(Axis(1))
             .broadcast(shape)
-            .unwrap()
+            .unwrap_or(Array::default(shape).view())
             .to_owned()
             * vel.mapv(|x| x.powi(2)))
         .sum();
     let pos = nbsys.pos.clone();
 
-    let g: f64 = nbsys.g.clone();
-    let soft: f64 = nbsys.soft.clone();
+    let g: f64 = nbsys.g;
+    let soft: f64 = nbsys.soft;
 
     let (x, y, z) = (pos.column(0), pos.column(1), pos.column(2));
 
@@ -161,7 +165,7 @@ impl Tri for ArrayBase<OwnedRepr<f64>, Ix2> {
         let mut result_arr = Array2::<f64>::zeros((cols, cols).f());
 
         for (i, row) in self.axis_iter(Axis(0)).enumerate() {
-            let slice_main = (i as usize + k)..self.nrows();
+            let slice_main = (i + k)..self.nrows();
             row.slice(s![slice_main.clone()]) //.to_owned()
                 .assign_to(result_arr.slice_mut(s![i, slice_main.clone()]));
         }
@@ -203,7 +207,7 @@ pub fn run_sim(
 
     // get initial acceleration and energies
     nbsys.accel = get_accel(nbsys)?;
-    (ke_save[0], pe_save[0]) = get_energy(&nbsys);
+    (ke_save[0], pe_save[0]) = get_energy(nbsys);
 
     // save initial conditions
     pos_save.slice_mut(s![.., .., 0]).assign(&nbsys.pos);
@@ -222,7 +226,7 @@ pub fn run_sim(
         nbsys.vel = nbsys.vel.clone() + (0.5 * (nbsys.accel.clone() + accel_new.view()) * dt);
 
         pos_save.slice_mut(s![.., .., i + 1]).assign(&nbsys.pos);
-        (ke_save[i + 1], pe_save[i + 1]) = get_energy(&nbsys);
+        (ke_save[i + 1], pe_save[i + 1]) = get_energy(nbsys);
         time[i + 1] = t;
 
         // update acceleration
