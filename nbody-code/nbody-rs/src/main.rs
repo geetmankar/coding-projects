@@ -1,15 +1,11 @@
-#![allow(unused_imports)]
 mod nbody;
 mod plotting;
 use clap::Parser;
-use nbody::{get_accel, get_energy, run_sim, NBodySystem, Tri};
+use color_eyre::eyre::Result;
+use nbody::{run_sim, NBodySystem};
 use ndarray::{prelude::*, ShapeError};
-use ndarray::{Array, Axis};
-
-use color_eyre::eyre::Error;
 use ndarray_rand::rand_distr::Uniform;
 use ndarray_rand::RandomExt;
-// use rand;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -20,22 +16,7 @@ struct CliArgParser {
     video: bool,
 }
 
-// macro_rules! testmacro {
-//     ($x:expr) => {{
-//         let shape = ($x.len(), $x.len() + 1usize);
-//         let fi = $x.broadcast(shape).unwrap().to_owned();
-//         fi
-//     }};
-// }
-
-// fn main() {
-//     let a = Array1::<i32>::ones(3);
-//     let b = testmacro!(a.clone().insert_axis(Axis(1)));
-//     println!("a = \n{}\n", a);
-//     println!("b = \n{}\n", b);
-// }
-
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), ShapeError> {
     let args = CliArgParser::parse();
     let n = 100; // Number of particles
     let t_end = 15.; // Time at which the sim ends

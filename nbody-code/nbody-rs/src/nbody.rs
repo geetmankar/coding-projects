@@ -1,19 +1,7 @@
-#![allow(unused_macros, dead_code)]
-use color_eyre::eyre::{ErrReport, Error, Result};
+use color_eyre::eyre::Result;
 use kdam::tqdm;
-use ndarray::{prelude::*, ShapeError, ViewRepr};
-use ndarray::{
-    s,
-    stack,
-    Array,
-    Array1,
-    Array2,
-    ArrayBase,
-    Axis,
-    Ix2,
-    OwnedRepr, // RawData, ViewRepr,
-};
-use rayon::prelude::IntoParallelIterator;
+use ndarray::{prelude::*, ShapeError};
+use ndarray::{s, stack, Array1, Array2, ArrayBase, Axis, Ix2, OwnedRepr};
 
 #[doc = r"a struct of n massive bodies with
 positions, masses, velocities, accelerations,
@@ -106,7 +94,7 @@ pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>, ShapeError> {
     let ay = (g * (dy.to_owned() * inv_r3.view())).dot(&mass);
     let az = (g * (dz.to_owned() * inv_r3.view())).dot(&mass);
 
-    let accel = stack(Axis(0), &[ax.view(), ay.view(), az.view()])?;
+    let accel = stack(Axis(1), &[ax.view(), ay.view(), az.view()])?;
 
     return Ok(accel);
 }
@@ -225,6 +213,8 @@ pub fn run_sim(
 
     for i in tqdm!(0..n_iter) {
         // update positions
+        assert_eq!(nbsys.pos.clone().shape(), nbsys.vel.clone().shape());
+        assert_eq!(nbsys.pos.clone().shape(), nbsys.accel.clone().shape());
         nbsys.pos = nbsys.pos.clone()
             + ((nbsys.vel.clone() * dt) + (0.5 * nbsys.accel.clone() * dt.powi(2))).view();
         // find new acceleration
