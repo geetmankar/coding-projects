@@ -215,7 +215,12 @@ pub fn run_sim(
     // initialize time
     let mut t = 0.0;
 
-    for i in tqdm!(0..n_iter) {
+    for i in tqdm!(
+        0..n_iter,
+        desc = "Simulating...",
+        colour = "yellow",
+        unit = " steps"
+    ) {
         // update positions
         nbsys.pos = nbsys.pos.clone()
             + ((nbsys.vel.clone() * dt) + (0.5 * nbsys.accel.clone() * dt.powi(2))).view();
