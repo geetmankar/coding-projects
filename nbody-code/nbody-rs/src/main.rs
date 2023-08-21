@@ -5,7 +5,7 @@ use std::path::Path;
 
 use clap::Parser;
 use color_eyre::eyre::{Error, Result};
-use kdam::tqdm;
+
 use nbody::{run_sim, NBodySystem};
 use ndarray::prelude::*;
 use ndarray_rand::rand_distr::Normal;
@@ -19,18 +19,6 @@ struct CliArgParser {
     video: bool,
 }
 
-// fn main() -> Result<(), Error> {
-//     let dir = "images";
-
-//     let dirpath = Path::new(&dir);
-//     if !dirpath.exists() {
-//         create_dir(dirpath)?
-//     }
-
-//     println!("{dir}/nbsys.png");
-//     Ok(())
-// }
-
 fn main() -> Result<(), Error> {
     let args = CliArgParser::parse();
     let n = 100; // Number of particles
@@ -40,8 +28,8 @@ fn main() -> Result<(), Error> {
     let g = 3.; // Newton's gravitational constant
 
     let mass = Array1::<f64>::from_elem(n, 20.); // total mass of the N particles
-    let pos = Array2::<f64>::random((n, 3), Normal::new(0., 2.).unwrap()); // random positions
-    let vel = Array2::<f64>::random((n, 3), Normal::new(0., 1.).unwrap());
+    let pos = Array2::<f64>::random((n, 3), Normal::new(0., 2.)?); // random positions
+    let vel = Array2::<f64>::random((n, 3), Normal::new(0., 1.)?);
     // let pos = Array2::<f64>::random((n, 3), Uniform::new(-4., 4.)); // random positions
     // let vel = Array2::<f64>::random((n, 3), Uniform::new(-1., 1.));
     let accel = Array2::<f64>::zeros((n, 3));
@@ -64,20 +52,9 @@ fn main() -> Result<(), Error> {
         create_dir(dirpath)?
     }
 
-    for i in tqdm!(
-        0..t_all.len(),
-        desc = "Plotting...",
-        colour = "green",
-        unit = " frames"
-    ) {
-        let filename = format!("./{dir}/nbsys_{i}.png").to_string();
+    let filename = format!("./{dir}/nbsys").to_string();
 
-        let ke_i = ke.clone().slice(s![..=i]).to_owned();
-        let pe_i = pe.clone().slice(s![..=i]).to_owned();
-        let t_all_i = t_all.clone().slice(s![..=i]).to_owned();
-
-        plot_nbodysystem(pos.clone(), ke_i, pe_i, t_all_i, i, Some(filename.as_str()))?;
-    }
+    plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
     if args.video {
         todo!()
