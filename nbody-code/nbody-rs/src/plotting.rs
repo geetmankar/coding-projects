@@ -21,10 +21,10 @@ pub fn plot_nbodysystem(
 ) -> Result<(), Error> {
     let filename = filename.unwrap_or(&"images/nbsys_{i}.png");
 
-    let img_size: (u32, u32) = (640, 860);
+    let img_size: (u32, u32) = (320, 430);
     let root = BitMapBackend::new(filename, img_size).into_drawing_area();
     // let lfonts = ("Times New Roman", 10).into_font();
-    let (upper, lower) = root.split_vertically(640);
+    let (upper, lower) = root.split_vertically(img_size.0);
 
     root.fill(&WHITE)?;
     let mut chart = ChartBuilder::on(&upper)
