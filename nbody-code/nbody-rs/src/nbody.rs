@@ -36,8 +36,8 @@ macro_rules! tdiff {
     // transpose difference
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
-        let defarr = Array::default(shape);
-        let fi = $x.t().broadcast(shape).unwrap_or(defarr.view()).to_owned()
+        let defarr = Array::zeros(shape);
+        let fi = $x.broadcast(shape).unwrap_or(defarr.view()).t().to_owned()
             - $x.broadcast(shape).unwrap_or(defarr.view());
         fi
     }};
@@ -58,7 +58,7 @@ macro_rules! sqmatrixify_sq {
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
         let defarr = Array::default(shape);
-        let fi = $x.t().broadcast(shape).unwrap_or(defarr.view()).to_owned()
+        let fi = $x.broadcast(shape).unwrap_or(defarr.view()).t().to_owned()
             * $x.broadcast(shape).unwrap_or(defarr.view());
         fi
     }};
@@ -117,9 +117,9 @@ pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
         * (mass
             .insert_axis(Axis(1))
             .broadcast(shape)
-            .unwrap_or(Array::default(shape).view())
+            .unwrap_or(Array::zeros(shape).view())
             .to_owned()
-            * vel.mapv(|x| x.powi(2)))
+            * vel.map(|x| x.powi(2)))
         .sum();
     let pos = nbsys.pos.clone();
 
@@ -130,19 +130,20 @@ pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
 
     let (dx, dy, dz) = (tdiff!(x), tdiff!(y), tdiff!(z));
 
-    let r3 = dx.clone().mapv(|x| x.powi(2))
+    let r = (dx.clone().mapv(|x| x.powi(2))
         + dy.mapv(|x| x.powi(2))
         + dz.mapv(|x| x.powi(2))
-        + soft.powi(2);
+        + soft.powi(2))
+    .mapv(|x| x.powf(0.5));
 
-    let inv_r3 = r3.mapv(|x| match x > 0. {
-        true => x.powi(-1),
+    let inv_r = r.mapv(|x| match x > 0. {
+        true => x.powf(-1.0),
         _ => 0.,
     });
 
     let pe = {
         let intermediate = -g * sqmatrixify_sq!(nbsys.mass);
-        let penergy = (intermediate * inv_r3.view()).triu(1).sum();
+        let penergy = (intermediate * inv_r.view()).triu(1).sum();
         penergy
     };
 
