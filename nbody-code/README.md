@@ -3,7 +3,7 @@
 ![Julia](https://img.shields.io/badge/-Julia-9558B2?style=for-the-badge&logo=julia&logoColor=white)
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 
-## Rust [Math under review]
+## Rust
 All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder.
 
 **REQUIRES: A Linux OS (or WSL), Python 3, matplotlib, ffmpeg CLI tool**
