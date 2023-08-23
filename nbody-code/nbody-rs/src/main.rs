@@ -33,8 +33,8 @@ fn main() -> Result<(), Error> {
     let g = 3.; // Newton's gravitational constant
 
     let mass = Array1::<f64>::from_elem(n, 20.) * (n as f64).powi(-1); // total mass of the N particles
-    let pos = Array2::<f64>::random((n, 3), Uniform::new(0., 3.0)); // random positions
-    let vel = Array2::<f64>::random((n, 3), Uniform::new(0., 0.5));
+    let pos = Array2::<f64>::random((n, 3), Uniform::new(-3.0, 3.0)); // random positions
+    let vel = Array2::<f64>::random((n, 3), Uniform::new(-0.5, 0.5));
     // let pos = Array2::<f64>::random((n, 3), Normal::new(0., 1.0)?); // random positions
     // let vel = Array2::<f64>::random((n, 3), Normal::new(0., 0.5)?);
     let accel = Array2::<f64>::zeros((n, 3));
@@ -67,12 +67,12 @@ fn main() -> Result<(), Error> {
         Command::new("chmod").args(["+x", "mkvideo.sh"]).status()?;
         Command::new("./mkvideo.sh").status()?;
 
-        println!("{}", "Video saved!".bold().bright_cyan());
+        print!("{}", "Video saved!".bold().bright_cyan());
 
         if !args.images {
             println!("{}", "Deleting images...".bold().bright_red());
             Command::new("rm").args(["-rf", "images"]).status()?;
-            println!("{}", "Deleted".bold().on_bright_magenta());
+            print!("{}", "Deleted".bold().bright_red());
         }
     }
 
