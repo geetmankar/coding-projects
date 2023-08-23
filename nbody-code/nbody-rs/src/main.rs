@@ -1,6 +1,6 @@
 mod nbody;
 mod plotting;
-use std::{env, fs::create_dir, path::Path};
+use std::{env, fs::create_dir, path::Path, process::Command};
 
 use clap::Parser;
 use color_eyre::eyre::{Error, Result};
@@ -16,6 +16,8 @@ use plotting::plot_nbodysystem;
 struct CliArgParser {
     #[arg(short, long, default_value = "false")]
     video: bool,
+    #[arg(short, long, default_value = "false")]
+    images: bool,
 }
 
 fn main() -> Result<(), Error> {
@@ -56,7 +58,13 @@ fn main() -> Result<(), Error> {
     plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
     if args.video {
-        todo!();
+        Command::new("chmod").args(["+x", "mkvideo.sh"]).status()?;
+        Command::new("./mkvideo.sh").status()?;
+
+        if !args.images {
+            Command::new("rm").args(["-rf", "images"]).status()?;
+        }
     }
+
     Ok(())
 }
