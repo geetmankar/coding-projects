@@ -61,18 +61,17 @@ fn main() -> Result<(), Error> {
 
     plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
-    println!("{}", "Making video from images...".bold().bright_cyan());
-
     if args.video {
+        println!("{}", "Making video from images...".bold().bright_cyan());
         Command::new("chmod").args(["+x", "mkvideo.sh"]).status()?;
         Command::new("./mkvideo.sh").status()?;
 
-        print!("{}", "Video saved!".bold().bright_cyan());
+        println!("{}", "Video saved!".bold().bright_cyan());
 
         if !args.images {
             println!("{}", "Deleting images...".bold().bright_red());
             Command::new("rm").args(["-rf", "images"]).status()?;
-            print!("{}", "Deleted".bold().bright_red());
+            println!("{}", "Deleted".bold().bright_red());
         }
     }
 
