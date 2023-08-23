@@ -6,9 +6,14 @@
 ## Rust [Math under review]
 All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder.
 
+**REQUIRES: Python 3, matplotlib, ffmpeg CLI tool**
+
 1. Install **Rust** (see [rustup.rs](rustup.rs)) and enter the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) directory.
-1. Open the terminal in this directory, and type: ```cargo run```. This will run the simulation and save the plots as `.png` images in the `./images/` folder.
-1. To turn it into a movie, use `ffmpeg` CLI (install it using `sudo apt install ffmpeg`) and run the following command:
+1. Open the terminal in this directory, and type: ```cargo run -- -v```. This will run the simulation and save the animation video for the N-Body System.
+
+The `-v` or `--video` flag is to indicate you want to create a video, the images of the plots (from which the video is made) will be subsequently deleted. If you wish to keep both the images and the videos, use the `-i` or `--images` flag along with the video flag.
+
+**Keep in mind that if you do not provide any flags, the images will be saved but NO VIDEO will be created.** If you wish to create a video from the images yourself, use `ffmpeg` (install it using `sudo apt install ffmpeg`) as follows:
 ```shell
 ffmpeg -framerate 60 -pattern_type  glob -i "images/nbsys_*.png" nbody.mp4
 ```
