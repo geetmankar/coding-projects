@@ -9,8 +9,8 @@ use std::io::{stderr, IsTerminal};
 macro_rules! energy_range {
     ($ke: expr, $pe: expr) => {
         (
-            $pe.to_owned().min()?.to_owned(),
-            $ke.to_owned().max()?.to_owned(),
+            $pe.to_owned().min()?.to_owned() + 1.0,
+            $ke.to_owned().max()?.to_owned() + 1.0,
         )
     };
 }
@@ -44,8 +44,7 @@ pub fn plot_nbodysystem(
             "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#EE6FF8")
         ),
         colour = Colour::gradient(&["#5A56E0", "#EE6FF8"]),
-        unit = " frames",
-        force_refresh = true
+        unit = " frames"
     )
     .for_each(|i| {
         let mut plot = Plot::new();
@@ -82,26 +81,22 @@ pub fn plot_nbodysystem(
         let mut curve_ke = Curve::new();
         let mut curve_pe = Curve::new();
 
-        // .set_line_alpha(0.8)
-        // .set_line_color("#1f77b4")
         curve_points
             .set_line_style("None")
-            .set_marker_color("#1f77b4")
+            .set_line_color("#35f0e0")
+            .set_marker_color("#35f0e0")
             .set_marker_size(3.0)
             .set_marker_style("o");
 
         curve_trails
             .set_line_style("None")
-            .set_marker_color("#ff7f0e")
+            .set_line_color("#f035ea")
+            .set_marker_color("#f035ea")
             .set_marker_size(1.0)
             .set_marker_style(".");
 
         // Draw curve
         curve_points.draw(&pos_x, &pos_y);
-
-        // for j in 1..pos_trailx.len() {
-        //     curve_trails.draw(&pos_trailx[j - 1], &pos_traily[j - 1]);
-        // }
 
         (1..pos_trailx.len())
             .map(|j| {

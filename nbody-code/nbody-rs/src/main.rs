@@ -1,4 +1,3 @@
-#![allow(unused_imports)]
 mod nbody;
 mod plotting;
 use std::{env, fs::create_dir, path::Path, process::Command};
@@ -9,7 +8,7 @@ use colored::Colorize;
 
 use nbody::{run_sim, NBodySystem};
 use ndarray::prelude::*;
-use ndarray_rand::rand_distr::{Normal, Uniform};
+use ndarray_rand::rand_distr::Normal;
 use ndarray_rand::RandomExt;
 use plotting::plot_nbodysystem;
 
@@ -30,11 +29,12 @@ fn main() -> Result<(), Error> {
     let t_end = 10.; // Time at which the sim ends
     let dt = 0.01; // 0.01 Timestep
     let soft = 0.1; // softening length
-    let g = 3.; // Newton's gravitational constant
+    let g = 2.; // Newton's gravitational constant
 
     let mass = Array1::<f64>::from_elem(n, 20.) * (n as f64).powi(-1); // total mass of the N particles
-    let pos = Array2::<f64>::random((n, 3), Uniform::new(-3.0, 3.0)); // random positions
-    let vel = Array2::<f64>::random((n, 3), Uniform::new(-0.5, 0.5));
+    let pos = Array2::<f64>::random((n, 3), Normal::new(0.0, 2.0)?); // random positions
+    let vel = Array2::<f64>::random((n, 3), Normal::new(0.0, 1.0)?);
+    // use ndarray_rand::rand_distr::Uniform
     // let pos = Array2::<f64>::random((n, 3), Normal::new(0., 1.0)?); // random positions
     // let vel = Array2::<f64>::random((n, 3), Normal::new(0., 0.5)?);
     let accel = Array2::<f64>::zeros((n, 3));
@@ -62,14 +62,14 @@ fn main() -> Result<(), Error> {
     plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
     if args.video {
-        println!("{}", "Making video from images...".bold().bright_cyan());
+        print!("{}", "Making video from images...".bold().bright_cyan());
         Command::new("chmod").args(["+x", "mkvideo.sh"]).status()?;
         Command::new("./mkvideo.sh").status()?;
 
         println!("{}", "Video saved!".bold().bright_cyan());
 
         if !args.images {
-            println!("{}", "Deleting images...".bold().bright_red());
+            print!("{}", "Deleting images...".bold().bright_red());
             Command::new("rm").args(["-rf", "images"]).status()?;
             println!("{}", "Deleted".bold().bright_red());
         }

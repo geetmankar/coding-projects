@@ -38,9 +38,12 @@ macro_rules! tdiff {
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
         let defarr = Array::zeros(shape);
-        let fi = $x.broadcast(shape).unwrap_or(defarr.view()).t().to_owned()
-            - $x.broadcast(shape).unwrap_or(defarr.view());
-        fi
+        let fi = $x
+            .insert_axis(Axis(1))
+            .broadcast(shape)
+            .unwrap_or(defarr.view())
+            .to_owned();
+        fi.t().to_owned() - fi.view()
     }};
 }
 
@@ -59,9 +62,12 @@ macro_rules! sqmatrixify_sq {
     ($x:expr) => {{
         let shape = ($x.len(), $x.len());
         let defarr = Array::default(shape);
-        let fi = $x.broadcast(shape).unwrap_or(defarr.view()).t().to_owned()
-            * $x.broadcast(shape).unwrap_or(defarr.view());
-        fi
+        let fi = $x
+            .insert_axis(Axis(1))
+            .broadcast(shape)
+            .unwrap_or(defarr.view())
+            .to_owned();
+        fi.clone() * fi.t()
     }};
 }
 
@@ -128,11 +134,9 @@ pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
 
     let (dx, dy, dz) = (tdiff!(x), tdiff!(y), tdiff!(z));
 
-    let r = (dx.clone().mapv(|x| x.powi(2))
-        + dy.mapv(|x| x.powi(2))
-        + dz.mapv(|x| x.powi(2))
-        + soft.powi(2))
-    .mapv(|x| x.powf(0.5));
+    let r =
+        (dx.mapv(|x| x.powi(2)) + dy.mapv(|x| x.powi(2)) + dz.mapv(|x| x.powi(2)) + soft.powi(2))
+            .mapv(|x| x.powf(0.5));
 
     let inv_r = r.mapv(|x| match x > 0. {
         true => x.powf(-1.0),
@@ -140,7 +144,10 @@ pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
     });
 
     let pe = {
-        let penergy = -g * (sqmatrixify_sq!(nbsys.mass) * inv_r.view()).triu(1).sum();
+        let penergy = -g
+            * (sqmatrixify_sq!(nbsys.mass.clone()) * inv_r.view())
+                .triu(1)
+                .sum();
         penergy
     };
 
@@ -227,8 +234,7 @@ pub fn run_sim(
             "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#38F5F2")
         ),
         colour = Colour::gradient(&["#38F554", "#38F5F2"]),
-        unit = " steps",
-        force_refresh = true
+        unit = " steps"
     ) {
         // update positions
         nbsys.pos.assign(
