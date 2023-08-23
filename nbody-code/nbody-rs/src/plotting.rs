@@ -1,4 +1,3 @@
-// #![allow(dead_code, unused_imports, unused_variables)]
 use color_eyre::eyre::{Error, Result};
 use kdam::{par_tqdm, rayon::prelude::*, term::Colorizer, Colour};
 use ndarray::{s, Array1, Array3, Axis};
@@ -9,8 +8,8 @@ use std::io::{stderr, IsTerminal};
 macro_rules! energy_range {
     ($ke: expr, $pe: expr) => {
         (
-            $pe.to_owned().min()?.to_owned() + 1.0,
-            $ke.to_owned().max()?.to_owned() + 1.0,
+            $pe.to_owned().min()?.to_owned() + 10.0,
+            $ke.to_owned().max()?.to_owned() + 10.0,
         )
     };
 }
@@ -120,8 +119,6 @@ pub fn plot_nbodysystem(
             .draw(&t_all_i, &pe_i);
 
         // Add scatter plots
-        // .extra("grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7); plt.subplot(grid[0:2, 0])")
-        //
         plot.set_subplot(2, 1, 1)
             .add(&curve_trails)
             .add(&curve_points)
@@ -130,8 +127,6 @@ pub fn plot_nbodysystem(
             .set_equal_axes(true);
 
         // add curve to subplot
-        //
-        // .extra("grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7); plt.subplot(grid[2, 0])")
         plot.set_subplot(2, 1, 2)
             .add(&curve_ke)
             .add(&curve_pe)

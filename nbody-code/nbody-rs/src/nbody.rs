@@ -213,7 +213,6 @@ pub fn run_sim(
     let mut time = Array1::zeros(n_iter + 1);
 
     // get initial acceleration and energies
-    // nbsys.accel = get_accel(nbsys)?;
     nbsys.accel.assign(&get_accel(nbsys)?);
 
     (ke_save[0], pe_save[0]) = get_energy(nbsys);
