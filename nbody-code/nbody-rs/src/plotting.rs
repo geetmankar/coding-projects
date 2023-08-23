@@ -126,7 +126,7 @@ pub fn plot_nbodysystem(
             .add(&curve_trails)
             .add(&curve_points)
             .set_labels("X", "Y")
-            .set_range(-4.0, 4.0, -4.0, 4.0)
+            .set_range(-2.0, 2.0, -2.0, 2.0)
             .set_equal_axes(true);
 
         // add curve to subplot
