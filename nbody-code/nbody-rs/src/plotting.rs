@@ -47,7 +47,7 @@ pub fn plot_nbodysystem(
     )
     .for_each(|i| {
         let mut plot = Plot::new();
-        plot.set_figure_size_inches(4.0, 6.0).set_gaps(0.2, 0.2);
+        plot.set_figure_size_inches(4.0, 7.0).set_gaps(0.2, 0.2);
 
         let fname = filename.clone() + &format!("_{i:04}.png");
 
@@ -82,15 +82,15 @@ pub fn plot_nbodysystem(
 
         curve_points
             .set_line_style("None")
-            .set_line_color("#35f0e0")
-            .set_marker_color("#35f0e0")
+            .set_line_color("#bd1411")
+            .set_marker_color("#bd1411")
             .set_marker_size(3.0)
             .set_marker_style("o");
 
         curve_trails
             .set_line_style("None")
-            .set_line_color("#f035ea")
-            .set_marker_color("#f035ea")
+            .set_line_color("#35f0e0")
+            .set_marker_color("#35f0e0")
             .set_marker_size(1.0)
             .set_marker_style(".");
 
