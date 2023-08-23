@@ -1,7 +1,8 @@
 use color_eyre::eyre::Result;
-use kdam::tqdm;
+use kdam::{term::Colorizer, tqdm, Colour};
 use ndarray::{prelude::*, ShapeError};
 use ndarray::{s, stack, Array1, Array2, ArrayBase, Axis, Ix2, OwnedRepr};
+use std::io::{stderr, IsTerminal};
 
 #[doc = r"a struct of n massive bodies with
 positions, masses, velocities, accelerations,
@@ -198,6 +199,8 @@ pub fn run_sim(
     t_end: f64,
     dt: f64,
 ) -> Result<(Array3<f64>, Array1<f64>, Array1<f64>, Array1<f64>), ShapeError> {
+    kdam::term::init(stderr().is_terminal());
+
     // set up arrays to store data
     let n = nbsys.mass.len();
     let n_iter = (t_end / dt).ceil() as usize;
@@ -219,8 +222,15 @@ pub fn run_sim(
     for i in tqdm!(
         0..n_iter,
         desc = "Simulating...",
-        colour = "yellow",
-        unit = " steps"
+        animation = "fillup",
+        bar_format = format!(
+            "{}|{{animation}}| {}/s]",
+            "{desc} {percentage:3.0}%".colorize("#38F5F2"),
+            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#38F5F2")
+        ),
+        colour = Colour::gradient(&["#38F554", "#38F5F2"]),
+        unit = " steps",
+        force_refresh = true
     ) {
         // update positions
         nbsys.pos.assign(

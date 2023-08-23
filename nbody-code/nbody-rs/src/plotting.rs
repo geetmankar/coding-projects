@@ -1,9 +1,10 @@
 // #![allow(dead_code, unused_imports, unused_variables)]
 use color_eyre::eyre::{Error, Result};
-use kdam::{par_tqdm, rayon::prelude::*};
+use kdam::{par_tqdm, rayon::prelude::*, term::Colorizer, Colour};
 use ndarray::{s, Array1, Array3, Axis};
 use ndarray_stats::QuantileExt;
 use plotpy::{Curve, Plot};
+use std::io::{stderr, IsTerminal};
 
 macro_rules! energy_range {
     ($ke: expr, $pe: expr) => {
@@ -32,11 +33,19 @@ pub fn plot_nbodysystem(
 
     let tmax = t_all[t_all.len() - 1];
 
+    kdam::term::init(stderr().is_terminal());
+
     par_tqdm!(
         (0..t_all.len()).into_par_iter(),
         desc = "Plotting...",
-        colour = "green",
-        unit = " frames"
+        bar_format = format!(
+            "{}|{{animation}}| {}/s]",
+            "{desc} {percentage:3.0}%".colorize("#EE6FF8"),
+            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#EE6FF8")
+        ),
+        colour = Colour::gradient(&["#5A56E0", "#EE6FF8"]),
+        unit = " frames",
+        force_refresh = true
     )
     .for_each(|i| {
         let mut plot = Plot::new();
