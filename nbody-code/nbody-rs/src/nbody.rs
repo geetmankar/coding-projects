@@ -79,15 +79,12 @@ pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>, ShapeError> {
     let g = nbsys.g;
     let soft: f64 = nbsys.soft;
 
-    // let shape = (pos.view().nrows(), pos.view().nrows());
-    // let mut r3 = Array2::<f64>::zeros(shape.f());
-
     let (x, y, z) = (pos.column(0), pos.column(1), pos.column(2));
     let (dx, dy, dz) = (tdiff!(x), tdiff!(y), tdiff!(z));
 
-    let r3 = dx.clone().to_owned() * dx.clone()
-        + dy.clone().to_owned() * dy.clone()
-        + dz.clone().to_owned() * dz.clone()
+    let r3 = dx.clone().to_owned().mapv(|x| x.powi(2))
+        + dy.clone().to_owned().mapv(|x| x.powi(2))
+        + dz.clone().to_owned().mapv(|x| x.powi(2))
         + soft.powi(2);
 
     let inv_r3 = r3.mapv(|x| match x > 0. {
@@ -95,9 +92,9 @@ pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>, ShapeError> {
         _ => 0.,
     });
 
-    let ax = (g * (dx.to_owned() * inv_r3.view())).dot(&mass);
-    let ay = (g * (dy.to_owned() * inv_r3.view())).dot(&mass);
-    let az = (g * (dz.to_owned() * inv_r3.view())).dot(&mass);
+    let ax = g * (dx * inv_r3.view()).dot(&mass);
+    let ay = g * (dy * inv_r3.view()).dot(&mass);
+    let az = g * (dz * inv_r3.view()).dot(&mass);
 
     let accel = stack(Axis(1), &[ax.view(), ay.view(), az.view()])?;
 
@@ -143,8 +140,7 @@ pub fn get_energy(nbsys: &NBodySystem) -> (f64, f64) {
     });
 
     let pe = {
-        let intermediate = -g * sqmatrixify_sq!(nbsys.mass);
-        let penergy = (intermediate * inv_r.view()).triu(1).sum();
+        let penergy = -g * (sqmatrixify_sq!(nbsys.mass) * inv_r.view()).triu(1).sum();
         penergy
     };
 
@@ -210,7 +206,9 @@ pub fn run_sim(
     let mut time = Array1::zeros(n_iter + 1);
 
     // get initial acceleration and energies
-    nbsys.accel = get_accel(nbsys)?;
+    // nbsys.accel = get_accel(nbsys)?;
+    nbsys.accel.assign(&get_accel(nbsys)?);
+
     (ke_save[0], pe_save[0]) = get_energy(nbsys);
 
     // save initial conditions

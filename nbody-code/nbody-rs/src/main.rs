@@ -1,13 +1,15 @@
+#![allow(unused_imports)]
 mod nbody;
 mod plotting;
 use std::{env, fs::create_dir, path::Path, process::Command};
 
 use clap::Parser;
 use color_eyre::eyre::{Error, Result};
+use colored::Colorize;
 
 use nbody::{run_sim, NBodySystem};
 use ndarray::prelude::*;
-use ndarray_rand::rand_distr::Normal;
+use ndarray_rand::rand_distr::{Normal, Uniform};
 use ndarray_rand::RandomExt;
 use plotting::plot_nbodysystem;
 
@@ -31,8 +33,10 @@ fn main() -> Result<(), Error> {
     let g = 3.; // Newton's gravitational constant
 
     let mass = Array1::<f64>::from_elem(n, 20.) * (n as f64).powi(-1); // total mass of the N particles
-    let pos = Array2::<f64>::random((n, 3), Normal::new(0., 1.0)?); // random positions
-    let vel = Array2::<f64>::random((n, 3), Normal::new(0., 0.5)?);
+    let pos = Array2::<f64>::random((n, 3), Uniform::new(0., 3.0)); // random positions
+    let vel = Array2::<f64>::random((n, 3), Uniform::new(0., 0.5));
+    // let pos = Array2::<f64>::random((n, 3), Normal::new(0., 1.0)?); // random positions
+    // let vel = Array2::<f64>::random((n, 3), Normal::new(0., 0.5)?);
     let accel = Array2::<f64>::zeros((n, 3));
     let mut nbsys = NBodySystem {
         n,
@@ -57,12 +61,18 @@ fn main() -> Result<(), Error> {
 
     plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
+    println!("{}", "Making video from images...".bold().bright_cyan());
+
     if args.video {
         Command::new("chmod").args(["+x", "mkvideo.sh"]).status()?;
         Command::new("./mkvideo.sh").status()?;
 
+        println!("{}", "Video saved!".bold().bright_cyan());
+
         if !args.images {
+            println!("{}", "Deleting images...".bold().bright_red());
             Command::new("rm").args(["-rf", "images"]).status()?;
+            println!("{}", "Deleted".bold().on_bright_magenta());
         }
     }
 
