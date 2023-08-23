@@ -3,9 +3,17 @@
 ![Julia](https://img.shields.io/badge/-Julia-9558B2?style=for-the-badge&logo=julia&logoColor=white)
 ![Rust](https://img.shields.io/badge/rust-%23000000.svg?style=for-the-badge&logo=rust&logoColor=white)
 
-## Rust [UNDER CONSTRUCTION]
-All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder. Instructions for the rust version will be added once it is complete.
+## Rust [Math under review]
+All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder.
 
+1. Install **Rust** (see [rustup.rs](rustup.rs)) and enter the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) directory.
+1. Open the terminal in this directory, and type: ```cargo run```. This will run the simulation and save the plots as `.png` images in the `./images/` folder.
+1. To turn it into a movie, use `ffmpeg` CLI (install it using `sudo apt install ffmpeg`) and run the following command:
+```shell
+ffmpeg -framerate 60 -pattern_type  glob -i "images/nbsys_*.png" nbody.mp4
+```
+
+---
 
 ## Python
 Use Python $\geq$ 3.9 to avoid unexpected errors. Run `pip install -r requirements.txt` in your terminal to install the packages needed to run BOTH scripts.
