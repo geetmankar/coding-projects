@@ -223,20 +223,24 @@ pub fn run_sim(
         unit = " steps"
     ) {
         // update positions
-        nbsys.pos = nbsys.pos.clone()
-            + ((nbsys.vel.clone() * dt) + (0.5 * nbsys.accel.clone() * dt.powi(2))).view();
+        nbsys.pos.assign(
+            &(nbsys.pos.clone()
+                + ((nbsys.vel.clone() * dt) + (0.5 * nbsys.accel.clone() * dt.powi(2))).view()),
+        );
         // find new acceleration
         let accel_new = get_accel(nbsys)?;
 
         // update velocities
-        nbsys.vel = nbsys.vel.clone() + (0.5 * (nbsys.accel.clone() + accel_new.view()) * dt);
+        nbsys
+            .vel
+            .assign(&(nbsys.vel.clone() + (0.5 * (nbsys.accel.clone() + accel_new.view()) * dt)));
 
         pos_save.slice_mut(s![.., .., i + 1]).assign(&nbsys.pos);
         (ke_save[i + 1], pe_save[i + 1]) = get_energy(nbsys);
         time[i + 1] = t;
 
         // update acceleration
-        nbsys.accel = accel_new;
+        nbsys.accel.assign(&accel_new);
         // update time
         t += dt;
     }

@@ -1,8 +1,6 @@
 mod nbody;
 mod plotting;
-use std::env;
-use std::fs::create_dir;
-use std::path::Path;
+use std::{env, fs::create_dir, path::Path};
 
 use clap::Parser;
 use color_eyre::eyre::{Error, Result};
@@ -58,7 +56,7 @@ fn main() -> Result<(), Error> {
     plot_nbodysystem(pos, ke, pe, t_all, filename)?;
 
     if args.video {
-        todo!()
+        todo!();
     }
     Ok(())
 }

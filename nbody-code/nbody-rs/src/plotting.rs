@@ -1,6 +1,6 @@
 // #![allow(dead_code, unused_imports, unused_variables)]
 use color_eyre::eyre::{Error, Result};
-use kdam::tqdm;
+use kdam::{par_tqdm, rayon::prelude::*};
 use ndarray::{s, Array1, Array3, Axis};
 use ndarray_stats::QuantileExt;
 use plotpy::{Curve, Plot};
@@ -21,26 +21,6 @@ fn max<T: PartialEq + PartialOrd>(x: T, y: T) -> T {
     }
 }
 
-// macro_rules! energy_range {
-//     ($ke: expr, $pe: expr) => {
-//         (
-//             (stack(Axis(0), &[$ke, $pe])?.to_owned().min()?.to_owned()),
-//             (stack(Axis(0), &[$ke, $pe])?.to_owned().max()?.to_owned()),
-//         )
-//     };
-// }
-// fn min<T: PartialEq + PartialOrd>(x: T, y: T) -> T {
-//     if x < y {
-//         x
-//     } else {
-//         y
-//     }
-// }
-//ArrayBase<OwnedRepr<f64>, Dim<[usize; 3]>>
-//ArrayBase<OwnedRepr<f64>, Dim<[usize; 1]>>
-//ArrayBase<ViewRepr<f64>, Dim<[usize; 3]>>
-//ArrayBase<ViewRepr<f64>, Dim<[usize; 1]>>
-
 pub fn plot_nbodysystem(
     pos: Array3<f64>,
     ke: Array1<f64>,
@@ -52,21 +32,17 @@ pub fn plot_nbodysystem(
 
     let tmax = t_all[t_all.len() - 1];
 
-    let mut plot = Plot::new();
-    plot.set_figure_size_inches(4.0, 6.0).set_gaps(0.2, 0.2);
-
-    for i in tqdm!(
-        0..t_all.len(),
+    par_tqdm!(
+        (0..t_all.len()).into_par_iter(),
         desc = "Plotting...",
         colour = "green",
         unit = " frames"
-    ) {
-        if i > 0 {
-            plot.clear_current_figure();
-        };
+    )
+    .for_each(|i| {
+        let mut plot = Plot::new();
+        plot.set_figure_size_inches(4.0, 6.0).set_gaps(0.2, 0.2);
 
-        let fname = filename.clone() + &format!("_{i}.png");
-        // let fname = fname.as_str();
+        let fname = filename.clone() + &format!("_{i:04}.png");
 
         let pos_interim = pos.slice(s![.., .., i]).clone().to_owned();
         let pos_x = pos_interim.slice(s![.., 0]).to_vec();
@@ -114,9 +90,16 @@ pub fn plot_nbodysystem(
         // Draw curve
         curve_points.draw(&pos_x, &pos_y);
 
-        for j in 1..pos_trailx.len() {
-            curve_trails.draw(&pos_trailx[j - 1], &pos_traily[j - 1]);
-        }
+        // for j in 1..pos_trailx.len() {
+        //     curve_trails.draw(&pos_trailx[j - 1], &pos_traily[j - 1]);
+        // }
+
+        (1..pos_trailx.len())
+            .map(|j| {
+                curve_trails.draw(&pos_trailx[j - 1], &pos_traily[j - 1]);
+            })
+            .count();
+
         // Draw energy curve
         curve_ke
             .set_label("KE")
@@ -133,14 +116,18 @@ pub fn plot_nbodysystem(
             .draw(&t_all_i, &pe_i);
 
         // Add scatter plots
+        // .extra("grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7); plt.subplot(grid[0:2, 0])")
+        //
         plot.set_subplot(2, 1, 1)
-            .add(&curve_points)
             .add(&curve_trails)
+            .add(&curve_points)
             .set_labels("X", "Y")
             .set_range(-4.0, 4.0, -4.0, 4.0)
             .set_equal_axes(true);
 
         // add curve to subplot
+        //
+        // .extra("grid = plt.GridSpec(3, 1, wspace=0, hspace=0.7); plt.subplot(grid[2, 0])")
         plot.set_subplot(2, 1, 2)
             .add(&curve_ke)
             .add(&curve_pe)
@@ -149,7 +136,7 @@ pub fn plot_nbodysystem(
             .set_equal_axes(false);
 
         plot.save(&fname).unwrap_or(());
-    }
+    });
 
     Ok(())
 }
