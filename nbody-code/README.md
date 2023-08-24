@@ -6,9 +6,14 @@
 ## Rust
 All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) folder.
 
-**REQUIRES: A Linux OS (or WSL), Python 3, matplotlib, ffmpeg CLI tool**
+**REQUIRES: A Linux OS (or WSL2), Python 3, matplotlib, ffmpeg CLI tool**
 
-- Bonus: Install `sccache` crate (`cargo install sccache` in the terminal) so that you **don't** have to compile all libraries everytime you run the project, only the parts that have changed do.
+Install the dependencies required for plotting by:
+```shell
+sudo apt-get install liblapacke-dev libopenblas-dev python3-pip
+pip install matplotlib
+```
+Bonus: Install `sccache` crate (`cargo install sccache` in the terminal) so that you **don't** have to compile all libraries everytime you run the project, only the parts that have changed do.
 
 1. Install **Rust** (see [rustup.rs](rustup.rs)) and enter the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) directory.
 1. Open the terminal in this directory, and type: ```cargo run -- -v```. This will run the simulation and save the animation video for the N-Body System.
