@@ -8,6 +8,8 @@ All relevant Rust code is inside the [nbody-rs](https://github.com/geetmankar/co
 
 **REQUIRES: A Linux OS (or WSL), Python 3, matplotlib, ffmpeg CLI tool**
 
+- Bonus: Install `sccache` crate (`cargo install sccache` in the terminal) so that you **don't** have to compile all libraries everytime you run the project, only the parts that have changed do.
+
 1. Install **Rust** (see [rustup.rs](rustup.rs)) and enter the [nbody-rs](https://github.com/geetmankar/coding-projects/tree/main/nbody-code/nbody-rs) directory.
 1. Open the terminal in this directory, and type: ```cargo run -- -v```. This will run the simulation and save the animation video for the N-Body System.
 
