@@ -8,8 +8,8 @@ use std::io::{stderr, IsTerminal};
 macro_rules! energy_range {
     ($ke: expr, $pe: expr) => {
         (
-            $pe.to_owned().min()?.to_owned() + 10.0,
-            $ke.to_owned().max()?.to_owned() + 10.0,
+            $pe.to_owned().min()?.to_owned() - 25.0,
+            $ke.to_owned().max()?.to_owned() + 25.0,
         )
     };
 }
@@ -38,16 +38,16 @@ pub fn plot_nbodysystem(
         (0..t_all.len()).into_par_iter(),
         desc = "Plotting...",
         bar_format = format!(
-            "{}|{{animation}}| {}/s]",
+            "{}|{{animation}}| {}",
             "{desc} {percentage:3.0}%".colorize("#EE6FF8"),
-            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#EE6FF8")
+            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}/s]".colorize("#EE6FF8")
         ),
         colour = Colour::gradient(&["#5A56E0", "#EE6FF8"]),
         unit = " frames"
     )
     .for_each(|i| {
         let mut plot = Plot::new();
-        plot.set_figure_size_inches(4.0, 7.0).set_gaps(0.2, 0.2);
+        plot.set_figure_size_inches(4.0, 6.0).set_gaps(0.2, 0.2);
 
         let fname = filename.clone() + &format!("_{i:04}.png");
 
@@ -89,8 +89,8 @@ pub fn plot_nbodysystem(
 
         curve_trails
             .set_line_style("None")
-            .set_line_color("#35f0e0")
-            .set_marker_color("#35f0e0")
+            .set_line_color("#2ca02c")
+            .set_marker_color("#2ca02c")
             .set_marker_size(1.0)
             .set_marker_style(".");
 
@@ -118,16 +118,14 @@ pub fn plot_nbodysystem(
             .set_line_style("-")
             .draw(&t_all_i, &pe_i);
 
-        // Add scatter plots
-        plot.set_subplot(2, 1, 1)
-            .add(&curve_trails)
+        plot.set_gridspec("g", 3, 1, "wspace=0, hspace=0.7")
+            .set_subplot_grid("g", "0:2", "0")
+            .add(&curve_trails) // massive bodies
             .add(&curve_points)
             .set_labels("X", "Y")
             .set_range(-2.0, 2.0, -2.0, 2.0)
-            .set_equal_axes(true);
-
-        // add curve to subplot
-        plot.set_subplot(2, 1, 2)
+            .set_equal_axes(true)
+            .set_subplot_grid("g", "2", "0") // Energy plots
             .add(&curve_ke)
             .add(&curve_pe)
             .set_range(0.0, tmax, e_range.0, e_range.1)

@@ -228,9 +228,9 @@ pub fn run_sim(
         desc = "Simulating...",
         animation = "fillup",
         bar_format = format!(
-            "{}|{{animation}}| {}/s]",
+            "{}|{{animation}}| {}",
             "{desc} {percentage:3.0}%".colorize("#38F5F2"),
-            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}".colorize("#38F5F2")
+            "{count}/{total} [{elapsed}<{remaining}, {rate:.2}{unit}/s]".colorize("#38F5F2")
         ),
         colour = Colour::gradient(&["#38F554", "#38F5F2"]),
         unit = " steps"
