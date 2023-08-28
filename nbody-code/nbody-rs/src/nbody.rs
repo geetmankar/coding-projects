@@ -1,6 +1,6 @@
 use color_eyre::eyre::Result;
 use kdam::{term::Colorizer, tqdm, Colour};
-use ndarray::{prelude::*, ShapeError};
+use ndarray::prelude::*;
 use ndarray::{s, stack, Array1, Array2, ArrayBase, Axis, Ix2, OwnedRepr};
 use std::io::{stderr, IsTerminal};
 
@@ -79,7 +79,7 @@ nbsys: NBodySystem
 Returns:
 accel: Array2<f64>, acceleration of each particle
 "]
-pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>, ShapeError> {
+pub fn get_accel(nbsys: &NBodySystem) -> Result<Array2<f64>> {
     let pos = nbsys.pos.clone();
     let mass = nbsys.mass.clone();
     let g = nbsys.g;
@@ -201,7 +201,7 @@ pub fn run_sim(
     nbsys: &mut NBodySystem,
     t_end: f64,
     dt: f64,
-) -> Result<(Array3<f64>, Array1<f64>, Array1<f64>, Array1<f64>), ShapeError> {
+) -> Result<(Array3<f64>, Array1<f64>, Array1<f64>, Array1<f64>)> {
     kdam::term::init(stderr().is_terminal());
 
     // set up arrays to store data

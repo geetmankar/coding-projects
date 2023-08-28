@@ -1,4 +1,4 @@
-use color_eyre::eyre::{Error, Result};
+use color_eyre::eyre::Result;
 use kdam::{par_tqdm, rayon::prelude::*, term::Colorizer, Colour};
 use ndarray::{s, Array1, Array3, Axis};
 use ndarray_stats::QuantileExt;
@@ -27,7 +27,7 @@ pub fn plot_nbodysystem(
     pe: Array1<f64>,
     t_all: Array1<f64>,
     filename: String,
-) -> Result<(), Error> {
+) -> Result<()> {
     let e_range = energy_range!(ke.view(), pe.view());
 
     let tmax = t_all[t_all.len() - 1];

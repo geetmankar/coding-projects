@@ -3,7 +3,7 @@ mod plotting;
 use std::{env, fs::create_dir, path::Path, process::Command};
 
 use clap::Parser;
-use color_eyre::eyre::{Error, Result};
+use color_eyre::eyre::Result;
 use colored::Colorize;
 
 use nbody::{run_sim, NBodySystem};
@@ -21,7 +21,7 @@ struct CliArgParser {
     images: bool,
 }
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
     env::set_var("RUST_BACKTRACE", "1");
 
     let args = CliArgParser::parse();
